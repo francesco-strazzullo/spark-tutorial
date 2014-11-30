@@ -17,16 +17,13 @@ public class App
     
     	//User Reource
     	
-    	//List
     	Spark.get("/user",  (request, response) -> GSON.toJson(User.getAll()));
     	
-    	//Get
     	Spark.get("/user/:id",  (request, response) -> {
     		Integer id = Integer.parseInt(request.params("id"));
     		return GSON.toJson(User.get(id));
     	});
     	
-    	//Create
     	Spark.post("/user",  (request, response) -> {
     		User toStore = null;
 			try {
@@ -45,7 +42,6 @@ public class App
 			}
     	});
     	
-    	//Update
     	Spark.put("/user/:id",  (request, response) -> {
     		if(User.get(Integer.parseInt(request.params("id"))) == null){
     			response.status(404);
@@ -63,7 +59,6 @@ public class App
     		}
     	});
     	
-    	//DELETE
     	Spark.delete("/user/:id", (request, response) -> {
     		User user = User.get(Integer.parseInt(request.params("id")));
     		if(user == null){
@@ -73,6 +68,39 @@ public class App
     			User.delete(user);
     			return "USER DELETED";
     		}
+    	});
+    	
+    	//Authetication
+    	
+    	Spark.before((request,response)->{
+    		String method = request.requestMethod();
+    		if(method.equals("POST") || method.equals("PUT") || method.equals("DELETE")){
+    			String authentication = request.headers("Authentication");
+    			if(!"PASSWORD".equals(authentication)){
+    				Spark.halt(401, "User Unatourized");
+    			}
+    		}  
+    	});
+    	
+    	//CORS
+    	
+    	Spark.options("/*", (request,response)->{
+    		
+    		String accessControlRequestHeaders = request.headers("Access-Control-Request-Headers");
+			if (accessControlRequestHeaders != null) {
+    			response.header("Access-Control-Allow-Headers", accessControlRequestHeaders);
+    		}
+			
+			String accessControlRequestMethod = request.headers("Access-Control-Request-Method");
+			if(accessControlRequestMethod != null){
+				response.header("Access-Control-Allow-Methods", accessControlRequestMethod);
+			}
+    		
+    		return "OK";
+    	});
+    	
+    	Spark.before((request,response)->{
+    		response.header("Access-Control-Allow-Origin", "*");
     	});
     }
 }
