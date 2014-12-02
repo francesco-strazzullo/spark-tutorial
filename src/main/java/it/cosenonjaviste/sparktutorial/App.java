@@ -77,7 +77,7 @@ public class App
     		if(method.equals("POST") || method.equals("PUT") || method.equals("DELETE")){
     			String authentication = request.headers("Authentication");
     			if(!"PASSWORD".equals(authentication)){
-    				Spark.halt(401, "User Unatourized");
+    				Spark.halt(401, "User Unauthorized");
     			}
     		}  
     	});
